@@ -1,13 +1,24 @@
-from gameserver import GameServer
+import GameServer
 from webserver import ... # Not implemented yet
 from json import loads
 
 def json_read(json):
     return loads(json)
 
+def recieve_request():
+    if (json := json_read()):
+        
+        json['serverId']
+        json['gameserverId']
+        json['game']
+        json['command']
+
 def request_servers():
     # Request servers that should be active from motherserver
+    # Recieve JSON object
     pass
+
+
 
 def resume_servers():
     if request_servers():
@@ -16,6 +27,9 @@ def resume_servers():
     else:
         # No servers should be active in this VPS
         return {}
+
+def close_server():
+    pass
 
 def main():
     # Define dictionary of gameservers running on this VPS {serverID: GameServer instance}

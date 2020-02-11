@@ -43,7 +43,39 @@ class GameServer():
         # Start server
         self._start_server()
         self._start_recording_thread()
-        
+
+
+class MinecraftJavaServer(GameServer):
+    def __init__(self, args, version, mods, client):
+        super().__init__(args)
+        self.version = version
+        self.mods = mods
+        self.client = client
+
+class MinecraftBedrockServer(GameServer):
+    def __init__(self, args):
+        super().__init__(args)
+    
+class DontStarveTogetherServer(GameServer):
+    def __init__(self, args, mods):
+        super().__init__(args)
+        self.mods = mods
+
+class TerrariaServer(GameServer):
+    def __init__(self, args, version, mods, client):
+        super().__init__(args)
+        self.version = version
+        self.mods = mods
+        self.client = client
+
+
+
+
+
+
+
+### For testing
+
 def main():
     path = "/opt/terraria/TerrariaServer.bin.x86_64"
     TerrariaServer = GameServer([path])
