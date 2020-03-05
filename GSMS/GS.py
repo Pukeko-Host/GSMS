@@ -5,19 +5,21 @@ Requires to be run on POSIX OSes (Tested and designed for Linux VPS machines)
 """
 
 from pty import openpty
-from subprocess import Popen, PIPE
+from subprocess import Popen, PIPE, TimeoutExpired
 from threading import Thread
 
-class GameServer():
+class GameServer:
     """
     Object for handling server processes in the terminal
     """
-    def __init__(self, args):
+    def __init__(self):
         self.stdout_output  = []
         self.stdout_handle  = None
         self.stdin_handle   = None
         self.process        = None
-        self.args           = args
+        self.args           = None
+        # https://docs.python.org/3/library/threading.html#thread-objects
+        self.thread         = Thread(target=self._record_output, daemon = True)
 
     def _record_output(self):
         for line in iter(self.stdout_handle.readline, b''):
@@ -42,21 +44,29 @@ class GameServer():
         self.stdin_handle = self.process.stdin # Use stdin_handle for interactions with the stdin of process
         self.stdout_handle = open(master) # Use stdout_handle for reading the stdout of process
 
-    def _start_recording_thread(self):
-        Thread(target=self._record_output, daemon = True).start()
-
     def start(self):
         # Start server
         self._start_server()
-        self._start_recording_thread()
-
+        self.thread.start() # Start recording thread
+        
+    def stop(self):
+        # Stop server - DO NOT USE THIS BEFORE WORLDS HAVE BEEN SAVED, IF A SERVER EXECUTABLE HAS AN EXIT METHOD; USE THAT FIRST, THIS CAN FORCE CLOSE THE PROCESS - 
+        self.process.terminate()
+        try:
+            self.process.wait(timeout=30) # Wait 30 seconds for the program to respond to SIGTERM
+        except TimeoutExpired:
+            self.process.kill() # Force kill process that took too long to terminate by sending SIGKILL
+        finally:
+            self.thread.join() # With the process killed and the thread joined, it should have been successfully closed
+                               # If this does not work, implement a boolean to _recording_output that will break the for loop
 
 class MinecraftJavaServer(GameServer):
-    def __init__(self, args, version, mods, client):
-        super().__init__(args)
+    def __init__(self, version, mods, client):
+        super().__init__()
         self.version = version
         self.mods = mods
         self.client = client
+
 
 class MinecraftBedrockServer(GameServer):
     def __init__(self, args):
@@ -72,9 +82,18 @@ class TerrariaServer(GameServer):
         super().__init__(args)
         self.version = version
         self.mods = mods
+        if mods:
+            pass
+        else:
+            self.args = ["/opt/terraria/TerrariaServer.bin.x86_64"]
         self.client = client
 
-
+class SCPSLServer(GameServer):
+    def __init__(self):
+        super().__init__()
+        self.mods = None
+        self.args = ["./SCP Secret Laboratory Dedicated Server/LocalAdmin"]
+        
 
 
 

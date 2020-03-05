@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="GSMS-Pukeko",
-    version="0.0.1",
+    version="0.0.2",
     author="Pukeko-Host",
     description="https://github.com/Pukeko-Host/GSMS",
     long_description=long_description,
