@@ -1,6 +1,6 @@
 """
 Manages GameServer objects by carrying out instructions from Mother Server
-Due to requirements of GS.py this must be run on POSIX (Designed for a Linux VPS, Tested on Manjaro)
+Due to requirements of GS.py this must be run on POSIX (Designed for a Linux VPS, developed on Manjaro Linux 20 and tested on Debian 10)
 """
 
 import GS as GameServer
@@ -15,12 +15,13 @@ def json_read(json):
     return loads(json)
 
 def recieve_request():
-    if (json := json_read()):
+    json = None
+    if (read_json := json_read(json)):
         
-        json['serverId']
-        json['gameserverId']
-        json['game']
-        json['command']
+        read_json['serverId']
+        read_json['gameserverId']
+        read_json['game']
+        read_json['command']
 
 def request_servers():
     # Request servers that should be active from motherserver
@@ -37,7 +38,8 @@ def resume_servers():
         return {}
 
 def start_server(user_id, game_id, gameservers):
-    # GameServers in an array where their index is their game_id - 1, alternative being a dict with keys from 1 to n. In my opinion this option is preferable.
+    # GameServers in an array where their index is their game_id - 1, alternative being a dict with keys from 1 to n. 
+    # In my opinion this option is preferable.
     server = [
         GameServer.MinecraftJavaServer,
         GameServer.MinecraftBedrockServer,
@@ -68,10 +70,3 @@ def main():
     # Start Async background task for listening to Mother - Not implemented yet -
     return gameservers
     
-
-if __name__ == "__main__":
-    # main()
-    # Testing
-    gs = main()
-    gs_id = start_server(None, 5, gs)
-    gs[gs_id].send_input("7777")
