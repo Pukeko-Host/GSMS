@@ -87,9 +87,10 @@ class MinecraftJavaServer(GameServer):
         # 1 is the ID for Minecraft Java Edition
         # Because of the server.properties file, local copies of server.jar are copied into the worlds directory. 
         # This willl make backups easier, especially for reverting back to old versions if an update fails.
-        self.args    = ["java", "-server", "-jar", server_dir := (get_world_folder(1, self.server_id)) + "server.jar", "nogui", "--world", server_dir + "world/"]
+        server_dir = get_world_folder(1, self.server_id)
+        self.args    = ["java", "-server", "-jar", server_dir + "server.jar", "nogui", "--world", server_dir + "world/"]
 
-    def first_time_setup():
+    def first_time_setup(self):
         # Check if server.jar for version is installed locally, if not download it
         # Copy server.jar into world directory from local server directory
         # Setup server.properties
