@@ -7,8 +7,9 @@ Requires to be run on POSIX OSes (Tested and designed for Linux VPS machines)
 from pty import openpty
 from subprocess import Popen, PIPE, TimeoutExpired
 from threading import Thread
-
 import time
+import requests
+import asyncio
 
 def get_server_folder(game, version=None):
     output = f"/opt/pukeko/gsms/{game}/" 
@@ -34,7 +35,7 @@ class GameServer:
         # https://docs.python.org/3/library/threading.html#thread-objects
         self.thread         = Thread(target=self._record_output, daemon = True)
 
-    def first_time_setup():
+    def first_time_setup(self):
         raise NotImplementedError("This GS either does not need to perform first time setup, or it has not been implemented yet.")
 
     def _record_output(self):
@@ -88,7 +89,11 @@ class MinecraftJavaServer(GameServer):
         # Because of the server.properties file, local copies of server.jar are copied into the worlds directory. 
         # This willl make backups easier, especially for reverting back to old versions if an update fails.
         server_dir = get_world_folder(1, self.server_id)
-        self.args    = ["java", "-server", "-jar", server_dir + "server.jar", "nogui", "--world", server_dir + "world/"]
+        self.args = ["java", "-server", "-jar", server_dir + "server.jar", "nogui", "--world", server_dir + "world/"]
+
+    def stop(self):
+        self.send_input("stop")
+        super().stop()
 
     def first_time_setup(self):
         # Check if server.jar for version is installed locally, if not download it
@@ -98,16 +103,65 @@ class MinecraftJavaServer(GameServer):
         # Start sweet f***ing Minecraft server experience for the customer
         self.start()
 
+    async def update_loop(self):
+        """
+        Checks for update to MC Java Edition, backups the server and updates it 
+        THIS IS NOT PERMANENT, MOTHER SERVER AND GSMS WILL HANDLE THIS 
+        """
+        while True:
+            # Get manifest.json, this contains the information for the latest versions of Minecraft Java
+            url = "https://launchermeta.mojang.com/mc/game/version_manifest.json"
+            request = requests.get(url)
+            json = request.json()
+            # TODO: Add option to select whether it is snapshot or release version the user wants to update to
+            version = json["latest"]["snapshot"]
+            if version != self.version:
+                # TODO: Add ability to update to any version other than latest
+                url = json["versions"][0]['url'] # Most latest version's json file
+                request = requests.get(url)
+                json = request.json()
+                server_jar_url = json["downloads"]["server"]
+                await self.update(server_jar_url)
+
+            # Wait 10 minutes before checking again
+            asyncio.sleep(600)
+
+    async def update(self, url):
+        # TODO: Add backup
+        response = requests.get(url)
+        with open("server.jar", "wb") as server_jar:
+            server_jar.write(response.content)
+
+        for time in range(30, 9, -10):
+            asyncio.sleep(10)
+            self.send_to_chat(f"Server restarting to update in {time} seconds.")
+
+        for time in range(9, 0, -1):
+            asyncio.sleep(1)
+            self.send_to_chat(f"Server restarting in {time} seconds.")
+
+        asyncio.sleep(1)
+
+        self.stop()
+
+        # BACKUP
+
+        self.start()
+
     def announce(self, title, subtitle=None):
         """Announce message to all users on server with an alert noise to accompany it."""
         # Play sound with alert
         self.send_input("execute at @a run playsound minecraft:block.note_block.bell ambient @p")
         # Fade in, stay, fade out 
-        self.send_input("/title @a time 10 75 5")
+        self.send_input("title @a time 10 75 5")
         if subtitle:
         # Add subtitle before posting title
-            self.send_input('/title @a subtitle {"text":"' + subtitle + '", "color":"white"}')
-        self.send_input('/title @a title {"text":"' + title + '", "color":"dark_aqua", "bold":true}')
+            self.send_input('title @a subtitle {"text":"' + subtitle + '", "color":"white"}')
+        self.send_input('title @a title {"text":"' + title + '", "color":"dark_aqua", "bold":true}')
+
+    def send_to_chat(self, message):
+        """Send message to chat in game as SERVER"""
+        self.send_input("say " + message)
         
 
 # class MinecraftBedrockServer(GameServer):
