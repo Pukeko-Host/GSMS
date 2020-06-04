@@ -1,6 +1,7 @@
 """
 Manages GameServer objects by carrying out instructions from Mother Server
-Due to requirements of GS.py this must be run on POSIX (Designed for a Linux VPS, developed on Manjaro Linux 20 and tested on Debian 10)
+Due to requirements of GS.py this must be run on POSIX
+(Designed for a Linux VPS, developed on Manjaro Linux 20 and tested on Debian 10)
 """
 
 import GS as GameServer

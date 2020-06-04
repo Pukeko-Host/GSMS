@@ -4,8 +4,11 @@
 
 **These files are currently under changes and the information below is subject to change and may no longer be accurate.**
 
-### Installation
-PIP: `pip install --upgrade https://github.com/Pukeko-Host/GSMS/tarball/master`
+### Installation 
+**Up to date version:**  
+PIP: `pip install --upgrade https://github.com/Pukeko-Host/GSMS/tarball/master`  
+**Development version:**  
+PIP: `pip install --upgrade https://github.com/Pukeko-Host/GSMS/tarball/development`  
 
 ### Importing
 `From GSMS import GSMS`  
@@ -29,4 +32,12 @@ PIP: `pip install --upgrade https://github.com/Pukeko-Host/GSMS/tarball/master`
   - `GameServer().send_input(input)` sends input to stdin.
   - The stdout can be accessed from `GameServer().stdout_output`, a list containing all lines from stdout.   
 -   GSMS.py - an instance of this will be running on every VPS, managing the `GameServers` on it.
+
+- File structure:  
+  - **Server files:** `/opt/pukeko/gsms/{game}/` 
+  Files like server.jar or TerrariaServer.bin.x86_64 would be stored here. As only one local copy of then is needed.
+  - **World files:** `~/.pukeko/gsms/{game}/{server_id}/`  
+  Files like terraria_world.wld would be stored here, other games might have clunkier versions with shortcuts or actual copies of the server binary/jar inside them though.
+  - **World backups:** `~/.pukeko/gsms/{game}/{server_id}/backups/`  
+  Compressed world folders/files will be stored here.
   
