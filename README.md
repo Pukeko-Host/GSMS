@@ -35,7 +35,7 @@ PIP: `pip install --upgrade https://github.com/Pukeko-Host/GSMS/tarball/developm
 
 - File structure:  
   - **Server files:** `/opt/pukeko/gsms/{game}/` 
-  Files like server.jar or TerrariaServer.bin.x86_64 would be stored here. As only one local copy of then is needed.
+  Files like server.jar or TerrariaServer.bin.x86_64 would be stored here. As only one local copy of them is needed.
   - **World files:** `/opt/pukeko/gsms/{game}/{server_id}/`  
   Files like terraria_world.wld would be stored here, other games might have clunkier versions with shortcuts or actual copies of the server binary/jar inside them though.
   - **World backups:** `/opt/pukeko/gsms/{game}/{server_id}/backups/`  
